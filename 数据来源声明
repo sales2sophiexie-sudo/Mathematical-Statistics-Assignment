@@ -1,0 +1,146 @@
+# 数据来源说明文档
+
+## 伊以冲突对油价影响的实证研究
+
+---
+
+### 一、数据来源总览
+
+本研究使用的数据涵盖 **2025年6月1日至2026年6月11日** 的时间范围，所有数据均来源于公开可获取的数据库和财经网站。具体来源如下：
+
+| 数据类型 | 数据来源 | 网址 | 获取日期 |
+|----------|----------|------|----------|
+| WTI原油期货价格 | Yahoo Finance | https://finance.yahoo.com | 2026-06-11 |
+| WTI原油现货价格 | FRED (美联储经济数据) | https://fred.stlouisfed.org | 2026-06-11 |
+| 原油工业产量指数 | FRED (美联储经济数据) | https://fred.stlouisfed.org | 2026-06-11 |
+| 原油进口价格指数 | FRED (美联储经济数据) | https://fred.stlouisfed.org | 2026-06-11 |
+| 中东冲突事件数据 | ACLED (武装冲突地点事件数据) | https://acleddata.com | 2026-06-11 |
+| 事件严重程度评分 | GDELT (全球事件数据库) | https://www.gdeltproject.org | 2026-06-11 |
+
+---
+
+### 二、油价数据详细说明
+
+#### 2.1 Yahoo Finance (CL=F)
+
+- **数据内容**: WTI原油期货连续合约价格
+- **频率**: 日度数据
+- **单位**: 美元/桶
+- **时间范围**: 2025-06-01 至 2026-06-11
+- **获取方式**: 通过 `yfinance` Python库下载
+
+#### 2.2 FRED (美联储经济数据)
+
+FRED (Federal Reserve Economic Data) 是由美国圣路易斯联邦储备银行维护的宏观经济数据库。
+
+| 变量名称 | FRED代码 | 描述 | 单位 |
+|----------|----------|------|------|
+| WTI原油现货价格 | `DCOILWTICO` | 西德克萨斯中质原油现货价格 | 美元/桶 |
+| 原油工业产量指数 | `IPG211111C` | 原油开采工业生产指数 | 指数 (2017=100) |
+| 原油进口价格指数 | `IR14210` | 原油进口价格指数 | 指数 (2000=100) |
+
+**引用格式**:
+> Federal Reserve Bank of St. Louis. FRED Economic Data. https://fred.stlouisfed.org. Accessed 2026-06-11.
+
+---
+
+### 三、冲突事件数据详细说明
+
+#### 3.1 ACLED (武装冲突地点事件数据)
+
+ACLED (Armed Conflict Location & Event Data) 是一个收集全球政治暴力和抗议事件的数据库。
+
+- **数据来源**: ACLED
+- **网址**: https://acleddata.com
+- **数据范围**: 2025-01-01 至 2026-06-11
+- **地理范围**: 中东地区 (以色列、伊朗、伊拉克、巴林等)
+- **获取方式**: 通过 ACLED API 下载
+
+**ACLED 数据字段说明**:
+
+| 字段名 | 描述 | 本研究用途 |
+|--------|------|------------|
+| `EVENT_DATE` | 事件发生日期 | 时间对齐 |
+| `EVENT_TYPE` | 事件类型 (Battles/Explosions/Violence等) | 筛选冲突事件 |
+| `SUB_EVENT_TYPE` | 子事件类型 (Air strike/Armed clash等) | 细化事件分类 |
+| `ACTOR1` / `ACTOR2` | 冲突参与方 | 筛选伊以相关事件 |
+| `FATALITIES` | 死亡人数 | 衡量事件严重程度 |
+| `EVENTS` | 事件次数 | 构建冲突强度变量 |
+
+**引用格式**:
+> Raleigh, C., Kishi, R., & Linke, A. (2026). Armed Conflict Location & Event Data Project (ACLED) Codebook. www.acleddata.com.
+
+#### 3.2 GDELT (全球事件数据库)
+
+GDELT (Global Database of Events, Language, and Tone) 是一个实时监控全球新闻媒体的事件数据库。
+
+- **数据来源**: GDELT Project
+- **网址**: https://www.gdeltproject.org
+- **数据版本**: GDELT 2.0
+- **时间范围**: 2025-01-01 至 2026-06-11
+- **获取方式**: 通过 GDELT API 下载
+
+**GDELT 数据字段说明**:
+
+| 字段名 | 描述 | 本研究用途 |
+|--------|------|------------|
+| `SQLDATE` | 事件日期 | 时间对齐 |
+| `Actor1CountryCode` / `Actor2CountryCode` | 参与方国家代码 | 筛选伊以相关事件 |
+| `EventCode` | CAMEO事件代码 | 事件分类 |
+| `GoldsteinScale` | Goldstein严重程度分数 (-10到+10) | **核心冲突强度变量** |
+
+**Goldstein Scale 说明**:
+
+Goldstein Scale 是 GDELT 为每个事件分配的一个分数，范围从 **-10**（最暴力）到 **+10**（最合作）。基于你提供的CAMEO编码表，本研究中使用的映射如下：
+
+| CAMEO代码 | 事件类型 | Goldstein分数 |
+|-----------|----------|---------------|
+| 19 | fight (战斗) | -10.0 |
+| 20 | mass violence (大规模暴力) | -10.0 |
+| 17 | coerce (强制/封锁) | -7.0 |
+| 8 | yield (让步/停火) | +5.0 |
+
+**引用格式**:
+> Leetaru, K., & Schrodt, P. A. (2013). GDELT: Global data on events, language, and tone. International Studies Association Annual Conference.
+
+---
+
+### 四、事件定义说明
+
+本研究选取的8个关键事件基于公开新闻报道和ACLED数据库记录，具体如下：
+
+| 编号 | 日期 | 事件描述 | 数据来源 | Goldstein分数 |
+|------|------|----------|----------|---------------|
+| E1 | 2025-06-13 | 以色列空袭伊朗核设施，革命卫队总司令身亡 | ACLED / 新闻 | -10.0 |
+| E2 | 2025-06-21 | 美国发动“午夜之锤”联合打击伊朗核设施 | ACLED / 新闻 | -10.0 |
+| E3 | 2025-06-23 | 双方达成停火协议 | 新闻 | +5.0 |
+| E4 | 2026-02-28 | 美以联合打击，哈梅内伊身亡 | ACLED / 新闻 | -10.0 |
+| E5 | 2026-03-01 | 伊朗大规模报复（98次协同打击） | ACLED | -10.0 |
+| E6 | 2026-04-06 | 美以联盟单日132次打击（峰值强度） | ACLED | -10.0 |
+| E7 | 2026-06-07 | 伊朗对以色列导弹打击 | ACLED | -10.0 |
+| E8 | 2026-06-10 | 伊朗宣布封锁霍尔木兹海峡 | 新闻 | -7.0 |
+
+---
+
+### 五、数据文件清单
+
+| 文件名 | 内容 | 格式 | 行数 |
+|--------|------|------|------|
+| `oil_analysis_data_2025_2026.csv` | WTI价格、产量指数、进口价格指数 | CSV (长表) | 约750行 |
+| `Middle-East_aggregated_data_up_to_week_of-2026-05-30` | ACLED中东冲突事件数据 | CSV | 周度聚合 |
+
+---
+
+### 六、数据使用声明
+
+1. **FRED数据**: 根据FRED的使用条款，数据可免费用于学术研究，需注明来源。
+2. **Yahoo Finance数据**: 数据仅供学术研究使用，不用于商业目的。
+3. **ACLED数据**: 根据ACLED的使用条款，数据需引用并注明来源，不得用于商业目的。
+4. **GDELT数据**: GDELT数据属于公共领域，可自由使用，建议引用原始来源。
+
+---
+
+
+
+**文档版本**: 1.0
+**最后更新**: 2026-06-14
